@@ -1,0 +1,49 @@
+<html>
+<head>
+</head>
+<body>
+
+  <div id="app">
+    <h3>Send / Receive V2 app</h3>
+    App ID: <input id="app_id" type="number"/><br/>
+    Message: <input id="input_message" type="text"/>
+    <div id="message">
+
+    </div>
+    <button id="button">Send notification</button>
+  </div>
+
+  <script type="text/javascript" src="https://assets.zendesk.com/apps/sdk/2.0/zaf_sdk.js"></script>
+  <script type="text/javascript" src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+  <script>
+    // init the ZAFClient object
+    var client = ZAFClient.init();
+    // get info via Support API for ticket, ticket requester, and current user
+    // set relevant variables equal to what will be sent to receiving app
+    // create options object to send in notification request
+
+    $( "#button" ).bind("click", function() {
+      var app_id = $('#app_id').val();
+      var message = $('#input_message').val();
+      var options = {
+        url      : '/api/v2/apps/notify.json',
+        type     : 'POST',
+        dataType : 'json',
+        data     : {
+          'app_id'   : parseInt(app_id), // app_id value of v2 receiver app found in ~/api/v2/apps/installations.json
+          'event'    : 'event_name',
+          'body'     : message
+        }
+      };
+      client.request(options).then(function(data) {
+        client.invoke('notify', 'Notification sent', 'alert');
+      });
+    });
+    // notify receiving app
+
+    client.on('notification.event_name',function(d){
+      $("#message").append("<p>"+ d +"</p>");
+    });
+  </script>
+</body>
+</html>
